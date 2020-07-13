@@ -352,10 +352,7 @@ class DispatchingApp:
             return self._app(environ, start_response)
         self._flush_bg_loading_exception()
         with self._lock:
-            if self._app is not None:
-                rv = self._app
-            else:
-                rv = self._load_unlocked()
+            rv = self._app if self._app is not None else self._load_unlocked()
             return rv(environ, start_response)
 
 
@@ -763,7 +760,7 @@ def _validate_key(ctx, param, value):
         ctx.params["cert"] = cert, value
 
     else:
-        if cert and not (is_adhoc or is_context):
+        if cert and not is_adhoc and not is_context:
             raise click.BadParameter('Required when using "--cert".', ctx, param)
 
     return value

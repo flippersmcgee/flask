@@ -736,11 +736,7 @@ class TestSendfile:
             os.path.dirname(__file__), "test_apps", "subdomaintestmodule"
         )
 
-        if sys.version_info >= (3, 8):
-            exception = NotFound
-        else:
-            exception = BadRequest
-
+        exception = NotFound if sys.version_info >= (3, 8) else BadRequest
         with pytest.raises(exception):
             flask.send_from_directory("static", "bad\x00")
 

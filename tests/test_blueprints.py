@@ -197,7 +197,7 @@ def test_templates_and_static(test_apps):
     max_age_default = app.config["SEND_FILE_MAX_AGE_DEFAULT"]
     try:
         expected_max_age = 3600
-        if app.config["SEND_FILE_MAX_AGE_DEFAULT"] == expected_max_age:
+        if max_age_default == expected_max_age:
             expected_max_age = 7200
         app.config["SEND_FILE_MAX_AGE_DEFAULT"] = expected_max_age
         rv = client.get("/admin/static/css/test.css")

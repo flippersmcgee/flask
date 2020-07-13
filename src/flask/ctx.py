@@ -369,8 +369,8 @@ class RequestContext:
             session_interface = self.app.session_interface
             self.session = session_interface.open_session(self.app, self.request)
 
-            if self.session is None:
-                self.session = session_interface.make_null_session(self.app)
+        if self.session is None:
+            self.session = session_interface.make_null_session(self.app)
 
         if self.url_adapter is not None:
             self.match_request()

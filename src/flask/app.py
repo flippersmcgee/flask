@@ -950,11 +950,7 @@ class Flask(_PackageBoundObject):
             sn_host, _, sn_port = server_name.partition(":")
 
         if not host:
-            if sn_host:
-                host = sn_host
-            else:
-                host = "127.0.0.1"
-
+            host = sn_host if sn_host else "127.0.0.1"
         if port or port == 0:
             port = int(port)
         elif sn_port:
@@ -1903,8 +1899,6 @@ class Flask(_PackageBoundObject):
         if self._got_first_request:
             return
         with self._before_request_lock:
-            if self._got_first_request:
-                return
             for func in self.before_first_request_funcs:
                 func()
             self._got_first_request = True
