@@ -64,7 +64,8 @@ class FixedOffset(datetime.tzinfo):
 
 class TestJSON:
     @pytest.mark.parametrize("debug", (True, False))
-    def test_bad_request_debug_message(self, app, client, debug):
+    @staticmethod
+    def test_bad_request_debug_message(app, client, debug):
         app.config["DEBUG"] = debug
         app.config["TRAP_BAD_REQUEST_ERRORS"] = False
 
@@ -78,7 +79,8 @@ class TestJSON:
         contains = b"Failed to decode JSON object" in rv.data
         assert contains == debug
 
-    def test_json_bad_requests(self, app, client):
+    @staticmethod
+    def test_json_bad_requests(app, client):
         @app.route("/json", methods=["POST"])
         def return_json():
             return flask.jsonify(foo=str(flask.request.get_json()))
@@ -86,7 +88,8 @@ class TestJSON:
         rv = client.post("/json", data="malformed", content_type="application/json")
         assert rv.status_code == 400
 
-    def test_json_custom_mimetypes(self, app, client):
+    @staticmethod
+    def test_json_custom_mimetypes(app, client):
         @app.route("/json", methods=["POST"])
         def return_json():
             return flask.request.get_json()
@@ -103,7 +106,8 @@ class TestJSON:
         rv = flask.json.dumps("\N{SNOWMAN}")
         assert rv == expected
 
-    def test_json_dump_to_file(self, app, app_ctx):
+    @staticmethod
+    def test_json_dump_to_file(app, app_ctx):
         test_data = {"name": "Flask"}
         out = io.StringIO()
 
@@ -124,7 +128,8 @@ class TestJSON:
         assert rv.mimetype == "application/json"
         assert flask.json.loads(rv.data) == test_value
 
-    def test_jsonify_dicts(self, app, client):
+    @staticmethod
+    def test_jsonify_dicts(app, client):
         """Test jsonify with dicts and kwargs unpacking."""
         d = {
             "a": 0,
@@ -151,7 +156,8 @@ class TestJSON:
             assert rv.mimetype == "application/json"
             assert flask.json.loads(rv.data) == d
 
-    def test_jsonify_arrays(self, app, client):
+    @staticmethod
+    def test_jsonify_arrays(app, client):
         """Test jsonify of lists and args unpacking."""
         a_list = [
             0,
@@ -178,7 +184,8 @@ class TestJSON:
             assert rv.mimetype == "application/json"
             assert flask.json.loads(rv.data) == a_list
 
-    def test_jsonify_date_types(self, app, client):
+    @staticmethod
+    def test_jsonify_date_types(app, client):
         """Test jsonify with datetime.date and datetime.datetime types."""
         test_dates = (
             datetime.datetime(1973, 3, 11, 6, 30, 45),
@@ -193,7 +200,8 @@ class TestJSON:
             assert flask.json.loads(rv.data)["x"] == http_date(d.timetuple())
 
     @pytest.mark.parametrize("tz", (("UTC", 0), ("PST", -8), ("KST", 9)))
-    def test_jsonify_aware_datetimes(self, tz):
+    @staticmethod
+    def test_jsonify_aware_datetimes(tz):
         """Test if aware datetime.datetime objects are converted into GMT."""
         tzinfo = FixedOffset(hours=tz[1], name=tz[0])
         dt = datetime.datetime(2017, 1, 1, 12, 34, 56, tzinfo=tzinfo)
@@ -201,7 +209,8 @@ class TestJSON:
         expected = dt.astimezone(gmt).strftime('"%a, %d %b %Y %H:%M:%S %Z"')
         assert flask.json.JSONEncoder().encode(dt) == expected
 
-    def test_jsonify_uuid_types(self, app, client):
+    @staticmethod
+    def test_jsonify_uuid_types(app, client):
         """Test jsonify with uuid.UUID types"""
 
         test_uuid = uuid.UUID(bytes=b"\xDE\xAD\xBE\xEF" * 4)
@@ -215,7 +224,8 @@ class TestJSON:
         rv_uuid = uuid.UUID(rv_x)
         assert rv_uuid == test_uuid
 
-    def test_json_attr(self, app, client):
+    @staticmethod
+    def test_json_attr(app, client):
         @app.route("/add", methods=["POST"])
         def add():
             json = flask.request.get_json()
@@ -228,7 +238,8 @@ class TestJSON:
         )
         assert rv.data == b"3"
 
-    def test_template_escaping(self, app, req_ctx):
+    @staticmethod
+    def test_template_escaping(app, req_ctx):
         render = flask.render_template_string
         rv = flask.json.htmlsafe_dumps("</script>")
         assert rv == '"\\u003c/script\\u003e"'
@@ -247,7 +258,8 @@ class TestJSON:
         )
         assert rv == '<a ng-data=\'{"x": ["foo", "bar", "baz\\u0027"]}\'></a>'
 
-    def test_json_customization(self, app, client):
+    @staticmethod
+    def test_json_customization(app, client):
         class X:  # noqa: B903, for Python2 compatibility
             def __init__(self, val):
                 self.val = val
@@ -263,7 +275,8 @@ class TestJSON:
                 kwargs.setdefault("object_hook", self.object_hook)
                 flask.json.JSONDecoder.__init__(self, *args, **kwargs)
 
-            def object_hook(self, obj):
+            @staticmethod
+            def object_hook(obj):
                 if len(obj) == 1 and "_foo" in obj:
                     return X(obj["_foo"])
                 return obj
@@ -282,7 +295,8 @@ class TestJSON:
         )
         assert rv.data == b'"<42>"'
 
-    def test_blueprint_json_customization(self, app, client):
+    @staticmethod
+    def test_blueprint_json_customization(app, client):
         class X:
             __slots__ = ("val",)
 
@@ -301,7 +315,8 @@ class TestJSON:
                 kwargs.setdefault("object_hook", self.object_hook)
                 flask.json.JSONDecoder.__init__(self, *args, **kwargs)
 
-            def object_hook(self, obj):
+            @staticmethod
+            def object_hook(obj):
                 if len(obj) == 1 and "_foo" in obj:
                     return X(obj["_foo"])
 
@@ -342,7 +357,8 @@ class TestJSON:
         assert rv.status_code == 200
         assert rv.data == "정상처리".encode()
 
-    def test_json_key_sorting(self, app, client):
+    @staticmethod
+    def test_json_key_sorting(app, client):
         app.debug = True
 
         assert app.config["JSON_SORT_KEYS"]
@@ -422,7 +438,8 @@ class PyBytesIO:
 
 
 class TestSendfile:
-    def test_send_file_regular(self, app, req_ctx):
+    @staticmethod
+    def test_send_file_regular(app, req_ctx):
         rv = flask.send_file("static/index.html")
         assert rv.direct_passthrough
         assert rv.mimetype == "text/html"
@@ -431,7 +448,8 @@ class TestSendfile:
             assert rv.data == f.read()
         rv.close()
 
-    def test_send_file_xsendfile(self, app, req_ctx):
+    @staticmethod
+    def test_send_file_xsendfile(app, req_ctx):
         app.use_x_sendfile = True
         rv = flask.send_file("static/index.html")
         assert rv.direct_passthrough
@@ -442,7 +460,8 @@ class TestSendfile:
         assert rv.mimetype == "text/html"
         rv.close()
 
-    def test_send_file_last_modified(self, app, client):
+    @staticmethod
+    def test_send_file_last_modified(app, client):
         last_modified = datetime.datetime(1999, 1, 1)
 
         @app.route("/")
@@ -456,7 +475,8 @@ class TestSendfile:
         rv = client.get("/")
         assert rv.last_modified == last_modified
 
-    def test_send_file_object_without_mimetype(self, app, req_ctx):
+    @staticmethod
+    def test_send_file_object_without_mimetype(app, req_ctx):
         with pytest.raises(ValueError) as excinfo:
             flask.send_file(io.BytesIO(b"LOL"))
         assert "Unable to infer MIME-type" in str(excinfo.value)
@@ -499,7 +519,8 @@ class TestSendfile:
 
         file.close()
 
-    def test_send_file_pathlike(self, app, req_ctx):
+    @staticmethod
+    def test_send_file_pathlike(app, req_ctx):
         rv = flask.send_file(FakePath("static/index.html"))
         assert rv.direct_passthrough
         assert rv.mimetype == "text/html"
@@ -573,7 +594,8 @@ class TestSendfile:
         assert rv.status_code == 200
         rv.close()
 
-    def test_send_file_range_request_bytesio(self, app, client):
+    @staticmethod
+    def test_send_file_range_request_bytesio(app, client):
         @app.route("/")
         def index():
             file = io.BytesIO(b"somethingsomething")
@@ -586,7 +608,8 @@ class TestSendfile:
         assert rv.data == b"somethingsomething"[4:16]
         rv.close()
 
-    def test_send_file_range_request_xsendfile_invalid(self, app, client):
+    @staticmethod
+    def test_send_file_range_request_xsendfile_invalid(app, client):
         # https://github.com/pallets/flask/issues/2526
         app.use_x_sendfile = True
 
@@ -598,7 +621,8 @@ class TestSendfile:
         assert rv.status_code == 416
         rv.close()
 
-    def test_attachment(self, app, req_ctx):
+    @staticmethod
+    def test_attachment(app, req_ctx):
         app = flask.Flask(__name__)
         with app.test_request_context():
             with open(os.path.join(app.root_path, "static/index.html"), "rb") as f:
@@ -664,7 +688,8 @@ class TestSendfile:
         else:
             assert "filename*=UTF-8''" not in content_disposition
 
-    def test_static_file(self, app, req_ctx):
+    @staticmethod
+    def test_static_file(app, req_ctx):
         # default cache timeout is 12 hours
 
         # Test with static file handler.
@@ -713,7 +738,8 @@ class TestSendfile:
             assert cc.max_age == 10
             rv.close()
 
-    def test_send_from_directory(self, app, req_ctx):
+    @staticmethod
+    def test_send_from_directory(app, req_ctx):
         app.root_path = os.path.join(
             os.path.dirname(__file__), "test_apps", "subdomaintestmodule"
         )
@@ -722,7 +748,8 @@ class TestSendfile:
         assert rv.data.strip() == b"Hello Subdomain"
         rv.close()
 
-    def test_send_from_directory_pathlike(self, app, req_ctx):
+    @staticmethod
+    def test_send_from_directory_pathlike(app, req_ctx):
         app.root_path = os.path.join(
             os.path.dirname(__file__), "test_apps", "subdomaintestmodule"
         )
@@ -731,7 +758,8 @@ class TestSendfile:
         assert rv.data.strip() == b"Hello Subdomain"
         rv.close()
 
-    def test_send_from_directory_null_character(self, app, req_ctx):
+    @staticmethod
+    def test_send_from_directory_null_character(app, req_ctx):
         app.root_path = os.path.join(
             os.path.dirname(__file__), "test_apps", "subdomaintestmodule"
         )
@@ -746,14 +774,16 @@ class TestSendfile:
 
 
 class TestUrlFor:
-    def test_url_for_with_anchor(self, app, req_ctx):
+    @staticmethod
+    def test_url_for_with_anchor(app, req_ctx):
         @app.route("/")
         def index():
             return "42"
 
         assert flask.url_for("index", _anchor="x y") == "/#x%20y"
 
-    def test_url_for_with_scheme(self, app, req_ctx):
+    @staticmethod
+    def test_url_for_with_scheme(app, req_ctx):
         @app.route("/")
         def index():
             return "42"
@@ -763,14 +793,16 @@ class TestUrlFor:
             == "https://localhost/"
         )
 
-    def test_url_for_with_scheme_not_external(self, app, req_ctx):
+    @staticmethod
+    def test_url_for_with_scheme_not_external(app, req_ctx):
         @app.route("/")
         def index():
             return "42"
 
         pytest.raises(ValueError, flask.url_for, "index", _scheme="https")
 
-    def test_url_for_with_alternating_schemes(self, app, req_ctx):
+    @staticmethod
+    def test_url_for_with_alternating_schemes(app, req_ctx):
         @app.route("/")
         def index():
             return "42"
@@ -782,16 +814,19 @@ class TestUrlFor:
         )
         assert flask.url_for("index", _external=True) == "http://localhost/"
 
-    def test_url_with_method(self, app, req_ctx):
+    @staticmethod
+    def test_url_with_method(app, req_ctx):
         from flask.views import MethodView
 
         class MyView(MethodView):
-            def get(self, id=None):
+            @staticmethod
+            def get(id=None):
                 if id is None:
                     return "List"
                 return f"Get {id:d}"
 
-            def post(self):
+            @staticmethod
+            def post():
                 return "Create"
 
         myview = MyView.as_view("myview")
@@ -815,7 +850,8 @@ class TestNoImports:
     imp modules in the Python standard library.
     """
 
-    def test_name_with_import_error(self, modules_tmpdir):
+    @staticmethod
+    def test_name_with_import_error(modules_tmpdir):
         modules_tmpdir.join("importerror.py").write("raise NotImplementedError()")
         try:
             flask.Flask("importerror")
@@ -824,7 +860,8 @@ class TestNoImports:
 
 
 class TestStreaming:
-    def test_streaming_with_context(self, app, client):
+    @staticmethod
+    def test_streaming_with_context(app, client):
         @app.route("/")
         def index():
             def generate():
@@ -837,7 +874,8 @@ class TestStreaming:
         rv = client.get("/?name=World")
         assert rv.data == b"Hello World!"
 
-    def test_streaming_with_context_as_decorator(self, app, client):
+    @staticmethod
+    def test_streaming_with_context_as_decorator(app, client):
         @app.route("/")
         def index():
             @flask.stream_with_context
@@ -861,7 +899,8 @@ class TestStreaming:
             def __iter__(self):
                 return self
 
-            def close(self):
+            @staticmethod
+            def close():
                 called.append(42)
 
             def __next__(self):
@@ -882,7 +921,8 @@ class TestStreaming:
         assert rv.data == b"Hello World!"
         assert called == [42]
 
-    def test_stream_keeps_session(self, app, client):
+    @staticmethod
+    def test_stream_keeps_session(app, client):
         @app.route("/")
         def index():
             flask.session["test"] = "flask"
@@ -898,7 +938,8 @@ class TestStreaming:
 
 
 class TestSafeJoin:
-    def test_safe_join(self):
+    @staticmethod
+    def test_safe_join():
         # Valid combinations of *args and expected joined paths.
         passing = (
             (("a/b/c",), "a/b/c"),
@@ -920,7 +961,8 @@ class TestSafeJoin:
         for args, expected in passing:
             assert flask.safe_join(*args) == expected
 
-    def test_safe_join_exceptions(self):
+    @staticmethod
+    def test_safe_join_exceptions():
         # Should raise werkzeug.exceptions.NotFound on unsafe joins.
         failing = (
             # path.isabs and ``..'' checks
@@ -973,7 +1015,8 @@ class TestHelpers:
         assert get_debug_flag() == debug
         assert get_env() == ref_env
 
-    def test_make_response(self):
+    @staticmethod
+    def test_make_response():
         app = flask.Flask(__name__)
         with app.test_request_context():
             rv = flask.helpers.make_response()
@@ -986,14 +1029,16 @@ class TestHelpers:
             assert rv.mimetype == "text/html"
 
     @pytest.mark.parametrize("mode", ("r", "rb", "rt"))
-    def test_open_resource(self, mode):
+    @staticmethod
+    def test_open_resource(mode):
         app = flask.Flask(__name__)
 
         with app.open_resource("static/index.html", mode) as f:
             assert "<h1>Hello World!</h1>" in str(f.read())
 
     @pytest.mark.parametrize("mode", ("w", "x", "a", "r+"))
-    def test_open_resource_exceptions(self, mode):
+    @staticmethod
+    def test_open_resource_exceptions(mode):
         app = flask.Flask(__name__)
 
         with pytest.raises(ValueError):

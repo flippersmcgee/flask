@@ -259,7 +259,8 @@ def test_get_version(test_apps, capsys):
         resilient_parsing = False
         color = None
 
-        def exit(self):
+        @staticmethod
+        def exit():
             return
 
     ctx = MockCtx()
@@ -425,7 +426,8 @@ def test_print_exceptions(runner):
 
 class TestRoutes:
     @pytest.fixture
-    def invoke(self, runner):
+    @staticmethod
+    def invoke(runner):
         def create_app():
             app = Flask(__name__)
             app.testing = True
@@ -444,7 +446,8 @@ class TestRoutes:
         return partial(runner.invoke, cli)
 
     @pytest.fixture
-    def invoke_no_routes(self, runner):
+    @staticmethod
+    def invoke_no_routes(runner):
         def create_app():
             app = Flask(__name__, static_folder=None)
             app.testing = True
@@ -454,7 +457,8 @@ class TestRoutes:
         cli = FlaskGroup(create_app=create_app)
         return partial(runner.invoke, cli)
 
-    def expect_order(self, order, output):
+    @staticmethod
+    def expect_order(order, output):
         # skip the header and match the start of each row
         for expect, line in zip(order, output.splitlines()[2:]):
             # do this instead of startswith for nicer pytest output
@@ -482,13 +486,15 @@ class TestRoutes:
             invoke(["routes", "-s", "match"]).output,
         )
 
-    def test_all_methods(self, invoke):
+    @staticmethod
+    def test_all_methods(invoke):
         output = invoke(["routes"]).output
         assert "GET, HEAD, OPTIONS, POST" not in output
         output = invoke(["routes", "--all-methods"]).output
         assert "GET, HEAD, OPTIONS, POST" in output
 
-    def test_no_routes(self, invoke_no_routes):
+    @staticmethod
+    def test_no_routes(invoke_no_routes):
         result = invoke_no_routes(["routes"])
         assert result.exit_code == 0
         assert "No routes were registered." in result.output

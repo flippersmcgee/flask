@@ -302,7 +302,8 @@ class RequestContext:
         return _app_ctx_stack.top.g
 
     @g.setter
-    def g(self, value):
+    @staticmethod
+    def g(value):
         _app_ctx_stack.top.g = value
 
     def copy(self):

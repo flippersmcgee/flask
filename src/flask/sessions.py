@@ -88,7 +88,8 @@ class NullSession(SecureCookieSession):
     but fail on setting.
     """
 
-    def _fail(self, *args, **kwargs):
+    @staticmethod
+    def _fail(*args, **kwargs):
         raise RuntimeError(
             "The session is unavailable because no secret "
             "key was set.  Set the secret_key on the "
@@ -163,7 +164,8 @@ class SessionInterface:
         """
         return isinstance(obj, self.null_session_class)
 
-    def get_cookie_name(self, app):
+    @staticmethod
+    def get_cookie_name(app):
         """Returns the name of the session cookie.
 
         Uses ``app.session_cookie_name`` which is set to ``SESSION_COOKIE_NAME``
@@ -228,7 +230,8 @@ class SessionInterface:
         app.config["SESSION_COOKIE_DOMAIN"] = rv
         return rv
 
-    def get_cookie_path(self, app):
+    @staticmethod
+    def get_cookie_path(app):
         """Returns the path for which the cookie should be valid.  The
         default implementation uses the value from the ``SESSION_COOKIE_PATH``
         config var if it's set, and falls back to ``APPLICATION_ROOT`` or
@@ -236,27 +239,31 @@ class SessionInterface:
         """
         return app.config["SESSION_COOKIE_PATH"] or app.config["APPLICATION_ROOT"]
 
-    def get_cookie_httponly(self, app):
+    @staticmethod
+    def get_cookie_httponly(app):
         """Returns True if the session cookie should be httponly.  This
         currently just returns the value of the ``SESSION_COOKIE_HTTPONLY``
         config var.
         """
         return app.config["SESSION_COOKIE_HTTPONLY"]
 
-    def get_cookie_secure(self, app):
+    @staticmethod
+    def get_cookie_secure(app):
         """Returns True if the cookie should be secure.  This currently
         just returns the value of the ``SESSION_COOKIE_SECURE`` setting.
         """
         return app.config["SESSION_COOKIE_SECURE"]
 
-    def get_cookie_samesite(self, app):
+    @staticmethod
+    def get_cookie_samesite(app):
         """Return ``'Strict'`` or ``'Lax'`` if the cookie should use the
         ``SameSite`` attribute. This currently just returns the value of
         the :data:`SESSION_COOKIE_SAMESITE` setting.
         """
         return app.config["SESSION_COOKIE_SAMESITE"]
 
-    def get_expiration_time(self, app, session):
+    @staticmethod
+    def get_expiration_time(app, session):
         """A helper method that returns an expiration date for the session
         or ``None`` if the session is linked to the browser session.  The
         default implementation returns now + the permanent session
@@ -265,7 +272,8 @@ class SessionInterface:
         if session.permanent:
             return datetime.utcnow() + app.permanent_session_lifetime
 
-    def should_set_cookie(self, app, session):
+    @staticmethod
+    def should_set_cookie(app, session):
         """Used by session backends to determine if a ``Set-Cookie`` header
         should be set for this session cookie for this response. If the session
         has been modified, the cookie is set. If the session is permanent and

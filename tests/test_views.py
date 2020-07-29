@@ -27,10 +27,12 @@ def test_basic_view(app):
 
 def test_method_based_view(app):
     class Index(flask.views.MethodView):
-        def get(self):
+        @staticmethod
+        def get():
             return "GET"
 
-        def post(self):
+        @staticmethod
+        def post():
             return "POST"
 
     app.add_url_rule("/", view_func=Index.as_view("index"))
@@ -40,10 +42,12 @@ def test_method_based_view(app):
 
 def test_view_patching(app):
     class Index(flask.views.MethodView):
-        def get(self):
+        @staticmethod
+        def get():
             1 // 0
 
-        def post(self):
+        @staticmethod
+        def post():
             1 // 0
 
     class Other(Index):
@@ -61,14 +65,17 @@ def test_view_patching(app):
 
 def test_view_inheritance(app, client):
     class Index(flask.views.MethodView):
-        def get(self):
+        @staticmethod
+        def get():
             return "GET"
 
-        def post(self):
+        @staticmethod
+        def post():
             return "POST"
 
     class BetterIndex(Index):
-        def delete(self):
+        @staticmethod
+        def delete():
             return "DELETE"
 
     app.add_url_rule("/", view_func=BetterIndex.as_view("index"))
@@ -140,7 +147,8 @@ def test_view_provide_automatic_options_attr():
 
 def test_implicit_head(app, client):
     class Index(flask.views.MethodView):
-        def get(self):
+        @staticmethod
+        def get():
             return flask.Response("Blub", headers={"X-Method": flask.request.method})
 
     app.add_url_rule("/", view_func=Index.as_view("index"))
@@ -154,10 +162,12 @@ def test_implicit_head(app, client):
 
 def test_explicit_head(app, client):
     class Index(flask.views.MethodView):
-        def get(self):
+        @staticmethod
+        def get():
             return "GET"
 
-        def head(self):
+        @staticmethod
+        def head():
             return flask.Response("", headers={"X-Method": "HEAD"})
 
     app.add_url_rule("/", view_func=Index.as_view("index"))
@@ -191,10 +201,12 @@ def test_methods_var_inheritance(app, client):
         methods = ["GET", "PROPFIND"]
 
     class ChildView(BaseView):
-        def get(self):
+        @staticmethod
+        def get():
             return "GET"
 
-        def propfind(self):
+        @staticmethod
+        def propfind():
             return "PROPFIND"
 
     app.add_url_rule("/", view_func=ChildView.as_view("index"))
@@ -206,11 +218,13 @@ def test_methods_var_inheritance(app, client):
 
 def test_multiple_inheritance(app, client):
     class GetView(flask.views.MethodView):
-        def get(self):
+        @staticmethod
+        def get():
             return "GET"
 
     class DeleteView(flask.views.MethodView):
-        def delete(self):
+        @staticmethod
+        def delete():
             return "DELETE"
 
     class GetDeleteView(GetView, DeleteView):
@@ -225,11 +239,13 @@ def test_multiple_inheritance(app, client):
 
 def test_remove_method_from_parent(app, client):
     class GetView(flask.views.MethodView):
-        def get(self):
+        @staticmethod
+        def get():
             return "GET"
 
     class OtherView(flask.views.MethodView):
-        def post(self):
+        @staticmethod
+        def post():
             return "POST"
 
     class View(GetView, OtherView):

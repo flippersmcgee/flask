@@ -6,7 +6,8 @@ except ImportError:
     signals_available = False
 
     class Namespace:
-        def signal(self, name, doc=None):
+        @staticmethod
+        def signal(name, doc=None):
             return _FakeSignal(name, doc)
 
     class _FakeSignal:
@@ -23,7 +24,8 @@ except ImportError:
         def send(self, *args, **kwargs):
             pass
 
-        def _fail(self, *args, **kwargs):
+        @staticmethod
+        def _fail(*args, **kwargs):
             raise RuntimeError(
                 "Signalling support is unavailable because the blinker"
                 " library is not installed."

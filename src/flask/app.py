@@ -783,7 +783,8 @@ class Flask(_PackageBoundObject):
         """
         return DispatchingJinjaLoader(self)
 
-    def select_jinja_autoescape(self, filename):
+    @staticmethod
+    def select_jinja_autoescape(filename):
         """Returns ``True`` if autoescaping should be active for the given
         template name. If no template name is given, returns `True`.
 
@@ -1922,7 +1923,8 @@ class Flask(_PackageBoundObject):
         rv.allow.update(methods)
         return rv
 
-    def should_ignore_error(self, error):
+    @staticmethod
+    def should_ignore_error(error):
         """This is called to figure out if an error should be ignored
         or not as far as the teardown system is concerned.  If this
         function returns ``True`` then the teardown handlers will not be

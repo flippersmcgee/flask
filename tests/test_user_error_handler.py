@@ -235,7 +235,8 @@ class TestGenericHandlers:
         app.config["PROPAGATE_EXCEPTIONS"] = False
         return app
 
-    def report_error(self, e):
+    @staticmethod
+    def report_error(e):
         original = getattr(e, "original_exception", None)
 
         if original is not None:
@@ -260,7 +261,8 @@ class TestGenericHandlers:
         assert client.get("/abort").data == b"direct InternalServerError"
         assert client.get("/raise").data == b"direct InternalServerError"
 
-    def test_handle_generic_http(self, app, client):
+    @staticmethod
+    def test_handle_generic_http(app, client):
         """``HTTPException`` should only receive ``HTTPException``
         subclasses. It will receive ``404`` routing exceptions.
         """

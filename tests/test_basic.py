@@ -1880,7 +1880,8 @@ def test_multi_route_class_views(app, client):
             app.add_url_rule("/", "index", self.index)
             app.add_url_rule("/<test>/", "index", self.index)
 
-        def index(self, test="a"):
+        @staticmethod
+        def index(test="a"):
             return test
 
     _ = View(app)
