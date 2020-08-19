@@ -34,9 +34,9 @@ _missing = object()
 # what separators does this operating system provide that are not a slash?
 # this is used by the send_from_directory function to ensure that nobody is
 # able to access files from outside the filesystem.
-_os_alt_seps = list(
+_os_alt_seps = [
     sep for sep in [os.path.sep, os.path.altsep] if sep not in (None, "/")
-)
+]
 
 
 def get_env():
@@ -575,19 +575,18 @@ def send_file(
         file = filename_or_fp
         filename = None
 
-    if mimetype is None:
-        if attachment_filename is not None:
-            mimetype = (
-                mimetypes.guess_type(attachment_filename)[0]
-                or "application/octet-stream"
-            )
+    if mimetype is None and attachment_filename is not None:
+        mimetype = (
+            mimetypes.guess_type(attachment_filename)[0]
+            or "application/octet-stream"
+        )
 
-        if mimetype is None:
-            raise ValueError(
-                "Unable to infer MIME-type because no filename is available. "
-                "Please set either `attachment_filename`, pass a filepath to "
-                "`filename_or_fp` or set your own MIME-type via `mimetype`."
-            )
+    if mimetype is None:
+        raise ValueError(
+            "Unable to infer MIME-type because no filename is available. "
+            "Please set either `attachment_filename`, pass a filepath to "
+            "`filename_or_fp` or set your own MIME-type via `mimetype`."
+        )
 
     headers = Headers()
     if as_attachment:

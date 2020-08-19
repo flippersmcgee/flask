@@ -411,7 +411,6 @@ def test_print_exceptions(runner):
 
     def create_app():
         raise Exception("oh no")
-        return Flask("flaskgroup")
 
     @click.group(cls=FlaskGroup, create_app=create_app)
     def cli(**params):
